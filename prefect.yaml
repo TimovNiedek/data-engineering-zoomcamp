@@ -1,0 +1,41 @@
+# Welcome to your prefect.yaml file! You can use this file for storing and managing
+# configuration for deploying your flows. We recommend committing this file to source
+# control along with your flow code.
+
+# Generic metadata about this project
+name: data-engineering-zoomcamp
+prefect-version: 2.14.9
+
+# build section allows you to manage and build docker images
+build: null
+
+# push section allows you to manage if and how this project is uploaded to remote locations
+push: null
+
+# pull section allows you to provide instructions for cloning this project in remote locations
+pull:
+- prefect.deployments.steps.git_clone:
+    repository: git@github.com:TimovNiedek/data-engineering-zoomcamp.git
+    branch: week_2
+
+# the deployments section allows you to provide configuration for deploying flows
+deployments:
+- name: web-to-gcs-git-storage
+  version: null
+  tags: []
+  description: |-
+    Parent flow to orchestrate the transfer of nyc taxi data to GCS for multiple
+    months.
+
+    Args:
+        months (list[int]): list of months to transfer
+        year (int, optional): year of the data. Defaults to 2021.
+        color (str, optional): color of the taxi. Defaults to "yellow".
+        clean_data (bool, optional): whether to clean the data. Defaults to True.
+  entrypoint: week_2_workflow_orchestration/homework/flows/parameterized_flow.py:etl_parent_flow
+  parameters: {}
+  work_pool:
+    name: local-work-pool
+    work_queue_name: null
+    job_variables: {}
+  schedule: null
