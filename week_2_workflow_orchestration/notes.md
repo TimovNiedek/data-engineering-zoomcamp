@@ -76,7 +76,7 @@ Result:
 > Loaded dataframe with 447770 rows
 
 
-### Question 2. Scheduling with Cron
+## Question 2. Scheduling with Cron
 
 Cron is a common scheduling specification for workflows. 
 
@@ -90,7 +90,7 @@ Using the flow in `etl_web_to_gcs.py`, create a deployment to run on the first o
 Answer:
 `0 5 1 * *`
 
-### Question 3. Loading data to BigQuery 
+## Question 3. Loading data to BigQuery 
 
 Using `etl_gcs_to_bq.py` as a starting point, modify the script for extracting data from GCS and loading it into BigQuery. This new script should not fill or remove rows with missing values. (The script is really just doing the E and L parts of ETL).
 
@@ -109,7 +109,22 @@ Make sure you have the parquet data files for Yellow taxi data for Feb. 2019 and
 - 27,235,753
 - 11,338,483
 
+### Solution
 
+Commands:
+
+```bash
+prefect deployment build flows/parameterized_flow.py:etl_parent_flow -n "flow-parameterized-local" -a  # the docker image was running out of memory
+prefect deployment build flows/etl_gcs_to_bq.py:etl_gcs_to_bq -n "gcs-to-bq" -a
+prefect deployment run "etl-parent-flow/flow-parameterized-local" -p "months=[2,3]" -p "year=2019" -p "color=yellow" -p "clean_data=False"
+prefect deployment run "etl-gcs-to-bq/gcs-to-bq" -p "months=[2,3]" -p "year=2019" -p "color=yellow"
+```
+
+Result:
+
+Number of rows: 7832545
+Number of rows: 7019375
+Total: 14.851.920
 
 ### Question 4. Github Storage Block
 
