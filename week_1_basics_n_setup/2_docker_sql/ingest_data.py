@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import os
-import argparse
+import typer
 
 from time import time
 
@@ -10,15 +10,35 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 
-def main(params):
-    user = params.user
-    password = params.password
-    host = params.host 
-    port = params.port 
-    db = params.db
-    table_name = params.table_name
-    url = params.url
-    
+app = typer.Typer()
+
+@app.command()
+def ingest_data(
+    user: str = typer.Option(..., help="username for postgres"),
+    password: str = typer.Option(..., help="password for postgres"),
+    host: str = typer.Option(..., help="host for postgres"),
+    port: str = typer.Option(..., help="port for postgres"),
+    db: str = typer.Option(..., help="database name for postgres"),
+    table_name: str = typer.Option(..., help="name of the table where we will write the results to"),
+    datetime_cols: str = typer.Option(
+        default='tpep_pickup_datetime,tpep_dropoff_datetime',
+        help="comma separated list of columns that are datetime",
+    ),
+    url: str = typer.Option(..., help="dataset_url of the csv file"),
+):
+    """Ingest CSV data to Postgres
+
+    Args:
+        user (str): username for postgres
+        password (str): password for postgres
+        host (str): host for postgres
+        port (str): port for postgres
+        db (str): database name for postgres
+        table_name (str): name of the table where we will write the results to
+        datetime_cols (str): comma separated list of columns that are datetime
+        url (str): dataset_url of the csv file
+    """
+
     # the backup files are gzipped, and it's important to keep the correct extension
     # for pandas to be able to open the file
     if url.endswith('.csv.gz'):
@@ -26,7 +46,7 @@ def main(params):
     else:
         csv_name = 'output.csv'
 
-    os.system(f"wget {url} -O {csv_name}")
+    os.system(f"curl {url} -L -o {csv_name}")
 
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
 
@@ -34,23 +54,22 @@ def main(params):
 
     df = next(df_iter)
 
-    df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
-    df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
+    datetime_cols = datetime_cols.split(',')
+    for col in datetime_cols:
+        df[col] = pd.to_datetime(df[col])
 
     df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace')
 
     df.to_sql(name=table_name, con=engine, if_exists='append')
 
-
-    while True: 
-
+    while True:
         try:
             t_start = time()
             
             df = next(df_iter)
 
-            df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
-            df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
+            for col in datetime_cols:
+                df[col] = pd.to_datetime(df[col])
 
             df.to_sql(name=table_name, con=engine, if_exists='append')
 
@@ -62,17 +81,7 @@ def main(params):
             print("Finished ingesting data into the postgres database")
             break
 
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Ingest CSV data to Postgres')
+    app()
 
-    parser.add_argument('--user', required=True, help='user name for postgres')
-    parser.add_argument('--password', required=True, help='password for postgres')
-    parser.add_argument('--host', required=True, help='host for postgres')
-    parser.add_argument('--port', required=True, help='port for postgres')
-    parser.add_argument('--db', required=True, help='database name for postgres')
-    parser.add_argument('--table_name', required=True, help='name of the table where we will write the results to')
-    parser.add_argument('--url', required=True, help='url of the csv file')
-
-    args = parser.parse_args()
-
-    main(args)

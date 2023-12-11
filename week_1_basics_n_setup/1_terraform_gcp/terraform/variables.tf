@@ -22,3 +22,9 @@ variable "BQ_DATASET" {
   type = string
   default = "trips_data_all"
 }
+
+variable "credentials" {
+  description = "Path to your GCP credentials file"
+  type = string
+  default = "./keys/gcloud-key.json"
+}
