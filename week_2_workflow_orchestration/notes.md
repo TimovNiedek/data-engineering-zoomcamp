@@ -180,9 +180,6 @@ Result:
 
 > Loaded dataframe with 88605 rows
 
-##### Bonus: change code and redeploy
-
-
 
 ### Question 5. Email or Slack notifications
 
@@ -212,6 +209,12 @@ How many rows were processed by the script?
 - `728,390`
 - `514,392`
 
+#### Solution
+
+I used MS Teams instead of Slack, but it's working fine.
+
+> Loaded dataframe with 514392 rows
+
 
 ### Question 6. Secrets
 
@@ -221,3 +224,8 @@ Prefect Secret blocks provide secure, encrypted storage in the database and obfu
 - 6
 - 8
 - 10
+
+
+#### Solution
+
+8 asterisks are shown.
