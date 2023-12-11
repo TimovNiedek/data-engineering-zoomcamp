@@ -141,6 +141,47 @@ How many rows were processed by the script?
 - 88,605
 - 190,225
 
+#### Solution
+
+Git blocks are not recommended to be used. Instead, I am using the prefect deploy command to set up git access for pulling the code from the git remote.
+
+Commands:
+
+```bash
+prefect deploy
+
+# Interactive prompt options:
+ ? Select a flow to deploy: week_2_workflow_orchestration/homework/flows/parameterized_flow.py
+ ? Deployment name (default): web-to-gcs-git-storage 
+ ? Would you like to configure a schedule for this deployment? [y/n] (y): n
+ ? Looks like you don't have any work pools this flow can be deployed to. Would you like to create one? [y/n] (y): y
+ ? What infrastructure type would you like to use for your new work pool?: process
+ ? Work pool name: local-work-pool
+ ? Your Prefect workers will need access to this flow's code in order to run it. Would you like your workers to pull your flow code from a remote storage location when running this flow? [y/n] (y): y
+ ? Please select a remote code storage option. [Use arrows to move; enter to select]: Git Repo
+ ? Is git@github.com:TimovNiedek/data-engineering-zoomcamp.git the correct URL to pull your flow code from? [y/n] (y): y
+ ? Is week_2 the correct branch to pull your flow code from? [y/n] (y): y
+ ? Is this a private repository? [y/n]: n
+```
+
+Start the worker:
+
+```bash
+prefect worker start --pool 'local-work-pool'
+```
+
+Run the deployment:
+
+```bash
+prefect deployment run 'etl-parent-flow/web-to-gcs-git-storage' -p "color=green" -p "months=[11]" -p "year=2020"
+```
+
+Result:
+
+> Loaded dataframe with 88605 rows
+
+##### Bonus: change code and redeploy
+
 
 
 ### Question 5. Email or Slack notifications

@@ -65,6 +65,8 @@ def write_local(df: pd.DataFrame, color: str, dataset_file: str) -> Path:
     path = Path(f'./data/{color}/{dataset_file}.parquet')
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(path, compression='gzip')
+    print(f"Wrote dataframe to {path.resolve()}")
+
     return path
 
 
