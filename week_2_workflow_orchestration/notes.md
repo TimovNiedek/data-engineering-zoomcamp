@@ -87,6 +87,8 @@ Using the flow in `etl_web_to_gcs.py`, create a deployment to run on the first o
 - `5 * 1 0 *`
 - `* * 5 1 0`
 
+Answer:
+`0 5 1 * *`
 
 ### Question 3. Loading data to BigQuery 
 
